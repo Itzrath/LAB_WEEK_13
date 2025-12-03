@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/movie_list"
+    <!-- The <data> tag is essential for Data Binding.
+         It defines variables you can pass from your Kotlin/Java code. -->
+    <data>
+        <!-- Replace 'com.example.lab_week_13.MainViewModel' with your actual ViewModel path -->
+        <variable
+            name="viewModel"
+            type="com.example.test_lab_week_13.MovieViewModel" />
+    </data>
+
+    <!-- The root element for the layout -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:spanCount="2"
-        tools:listitem="@layout/view_movie_item" />
+        tools:context=".MainActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!--
+            This is a RecyclerView for displaying a list of movies in a grid format.
+            It uses the GridLayoutManager with two columns (app:spanCount="2").
+            The tools:listitem property indicates which layout file is used
+            for each item in the list (view_movie_item.xml).
+        -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/movie_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            app:list="@{viewModel.popularMovies}"
+            tools:listitem="@layout/view_movie_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
