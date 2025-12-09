@@ -1,5 +1,6 @@
 package com.example.test_lab_week_13
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.test_lab_week_13.api.MovieService
@@ -32,5 +33,18 @@ class  MovieRepository(private val movieService: MovieService,private val movieD
                 emit(savedMovies)
             }
         }.flowOn(Dispatchers.IO)
+    }
+    suspend fun fetchMoviesFromNetwork() {
+        val movieDao: MovieDao = movieDatabase.movieDao()
+        try {
+            val popularMovies = movieService.getPopularMovies(apiKey)
+            val moviesFetched = popularMovies.results
+            movieDao.addMovies(moviesFetched)
+        } catch (exception: Exception) {
+            Log.d(
+                "MovieRepository",
+                "An error occurred: ${exception.message}"
+            )
+        }
     }
 }
