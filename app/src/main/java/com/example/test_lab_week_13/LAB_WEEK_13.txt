@@ -1,0 +1,55 @@
+1. Mengapa Arsitektur MVVM (Model-View-ViewModel) Penting?
+MVVM menerapkan prinsip Separation of Concerns, yaitu memisahkan logika bisnis dan data (Model) dari tampilan antarmuka (View) melalui perantara (ViewModel). Penerapan arsitektur ini krusial karena:
+Modular & Maintainable: Kode lebih terstruktur sehingga mudah diperbaiki atau dikembangkan tanpa merusak bagian lain.
+Testable: Logika bisnis terpisah dari ketergantungan Android UI, sehingga lebih mudah diuji (Unit Testing).
+Reactive UI: Memungkinkan UI bereaksi otomatis terhadap perubahan data tanpa perlu pembaruan manual yang rumit.
+Pemetaan File dalam Proyek:
+Model (Data & Logika Bisnis):
+- Entitas & Response: Movie.kt, PopularMoviesResponse.kt
+- Database Lokal: MovieDao.kt, MovieDatabase.kt
+- Manajemen Data: MovieRepository.kt, MovieService.kt
+
+View (Tampilan Antarmuka):
+- Activity/Logic UI: MainActivity.kt, DetailsActivity.kt
+- Adapter: MovieAdapter.kt
+- Layout XML: activity_main.xml, activity_details.xml, view_movie_item.xml
+
+ViewModel (Penghubung & State Holder):
+- MovieViewModel.kt
+
+2. Mengapa Data Binding Lebih Efisien?
+Data Binding mengubah cara UI berinteraksi dengan kode dari imperatif menjadi deklaratif. Efisiensinya terletak pada:
+- Eliminasi Boilerplate: Menghapus kebutuhan fungsi findViewById() yang repetitif dan memakan memori.
+- Keamanan Kode (Null Safety): Mengurangi risiko NullPointerException karena view yang tidak valid.
+- Sinkronisasi Otomatis: Variabel dalam XML dapat diikat langsung ke ViewModel, sehingga saat data berubah, UI otomatis diperbarui (Observability) tanpa perlu memanggil fungsi setText() atau setVisibility() secara manual di Activity.
+
+3. Mengapa Singleton Pattern Penting untuk Database?
+Singleton Pattern menjamin bahwa sebuah kelas hanya memiliki satu instance yang aktif selama aplikasi berjalan. Dalam konteks Database (MovieDatabase), ini sangat vital karena:
+- Efisiensi Resource: Membuka koneksi database adalah operasi yang "mahal" (memakan banyak memori dan CPU). Membuat instance baru setiap kali akses akan membebani sistem.
+- Integritas Data: Mencegah Race Condition, yaitu kondisi di mana dua proses mencoba membaca/menulis ke database yang sama secara bersamaan, yang dapat menyebabkan data korup atau aplikasi crash.
+
+4. Mengapa Repository Pattern Dibutuhkan?
+Repository bertindak sebagai gerbang tunggal atau "Single Source of Truth" bagi data aplikasi. Keuntungannya meliputi:
+- Abstraksi Data: ViewModel tidak perlu peduli apakah data berasal dari internet (API) atau penyimpanan lokal (Database); ia hanya meminta data ke Repository.
+- Manajemen Caching: Repository menangani logika pemilihan sumber data:
+Jika offline atau data sudah ada di lokal → Ambil dari Database (cepat & hemat kuota).
+Jika database kosong atau data kadaluarsa → Ambil dari API (Network).
+- Pemisahan Tugas: Menjaga kode ViewModel tetap bersih karena logika pengambilan data yang rumit disembunyikan di dalam Repository.
+
+5. Alternatif Selain WorkManager untuk Pembaruan Data
+Jika WorkManager (yang dirancang untuk tugas latar belakang yang guaranteed dan persisten) tidak cocok, berikut alternatifnya berdasarkan kebutuhan:
+Firebase Cloud Messaging (FCM):
+- Cara kerja: Server mengirim sinyal ke aplikasi.
+- Kelebihan: Paling efisien karena aplikasi hanya bangun dan update saat benar-benar ada data baru dari server (Real-time).
+
+Foreground Service:
+- Cara kerja: Menjalankan tugas panjang dengan menampilkan notifikasi permanen.
+- Kelebihan: Cocok untuk tugas yang harus segera diselesaikan dan tidak boleh dihentikan sistem (misal: download file besar atau pemutar musik).
+
+AlarmManager:
+- Cara kerja: Membangunkan aplikasi pada waktu spesifik.
+- Kekurangan: Kurang ramah baterai dibanding WorkManager untuk tugas rutin, namun berguna untuk penjadwalan waktu yang sangat presisi (misal: jam alarm).
+
+4. LifecycleScope / Coroutines (Saat App Aktif):
+- Cara kerja: Melakukan fetch data saat pengguna membuka layar.
+- Kelebihan: Paling sederhana jika data hanya perlu diperbarui saat pengguna sedang menggunakan aplikasi (tidak perlu update di background saat HP mati).
